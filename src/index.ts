@@ -15,7 +15,7 @@ createConnection()
     console.log("Inserting a new user into the database...");
 
     app.use((req, res, next) => {
-      if (req.url === "/user/login" || req.url === "user/signup") {
+      if (req.url === "/user/login" || req.url === "/user/signup") {
         return next();
       }
       const token = req.headers["authorization"].split("Bearer ")[1];
