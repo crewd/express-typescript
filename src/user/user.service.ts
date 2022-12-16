@@ -86,15 +86,11 @@ export class UserService {
       },
     };
   }
-  async userList(
-    token: string
-  ): Promise<{ success: boolean; message: string; data?: Users[] }> {
-    const verifyResult = tokenUtils.verify(token);
-
-    if (!verifyResult.success) {
-      return verifyResult;
-    }
-
+  async userList(): Promise<{
+    success: boolean;
+    message: string;
+    data?: Users[];
+  }> {
     const users = await getConnection().getRepository(User).find();
     const userInfo: Users[] = users.map((user) => {
       return {

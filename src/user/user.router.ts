@@ -34,10 +34,8 @@ router.post("/login", async (req: express.Request, res: express.Response) => {
 });
 
 router.get("/list", async (req: express.Request, res: express.Response) => {
-  const token = req.headers["authorization"].split("Bearer ")[1];
-
   const userService = new UserService();
-  const userList = await userService.userList(token);
+  const userList = await userService.userList();
 
   if (!userList.success) {
     return res.status(400).send(userList);

@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { createConnection } from "typeorm";
 import * as express from "express";
 import userRouter from "./user/user.router";
+import { tokenUtils } from "./middleware/token.utils";
 
 const app = express();
 const port = 3000;
@@ -12,6 +13,18 @@ app.use(express.json());
 createConnection()
   .then(async () => {
     console.log("Inserting a new user into the database...");
+
+    app.use((req, res, next) => {
+      if (req.url === "/user/login" || req.url === "user/signup") {
+        return next();
+      }
+      const token = req.headers["authorization"].split("Bearer ")[1];
+      const verifyToken = tokenUtils.verify(token);
+      if (!verifyToken.success) {
+        return res.status(400).send(verifyToken);
+      }
+      return next();
+    });
 
     // user router
     app.use("/user", userRouter);
