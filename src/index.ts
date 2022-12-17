@@ -14,14 +14,11 @@ createConnection()
   .then(async () => {
     console.log("Inserting a new user into the database...");
 
-    app.use((req, res, next) => {
-      if (req.url === "/user/login" || req.url === "/user/signup") {
-        return next();
-      }
+    app.use("/user/list", (req, res, next) => {
       const token = req.headers["authorization"].split("Bearer ")[1];
       const verifyToken = tokenUtils.verify(token);
       if (!verifyToken.success) {
-        return res.status(400).send(verifyToken);
+        return res.status(401).send(verifyToken);
       }
       return next();
     });
