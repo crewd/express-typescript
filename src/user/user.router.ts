@@ -43,7 +43,7 @@ router.get(
     const userList = await userService.userList();
 
     if (!userList.success) {
-      return res.status(400).send(userList);
+      return res.status(401).send(userList);
     }
 
     return res.send(userList);
