@@ -3,7 +3,7 @@ import { Post } from "./post.entity";
 import { PostData } from "./post.types";
 
 export class PostService {
-  async addPost(
+  async write(
     postData: PostData
   ): Promise<{ success: boolean; message: string }> {
     if (!postData.title) {

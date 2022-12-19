@@ -1,17 +1,16 @@
 import * as express from "express";
 import { authMiddleware } from "../middleware/user.middleware";
-import { tokenUtils } from "../utils/token.util";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { LoginUser } from "./user.types";
 
-const router = express.Router();
+export const router = express.Router();
+const userService = new UserService();
 
 // 회원가입
 router.post("/signup", async (req: express.Request, res: express.Response) => {
   const signUpData: User = req.body;
 
-  const userService = new UserService();
   const signUpResult = await userService.signUp(signUpData);
 
   if (!signUpResult.success) {
@@ -25,7 +24,6 @@ router.post("/signup", async (req: express.Request, res: express.Response) => {
 router.post("/login", async (req: express.Request, res: express.Response) => {
   const loginData: LoginUser = req.body;
 
-  const userService = new UserService();
   const logInResult = await userService.logIn(loginData);
 
   if (!logInResult.success) {
@@ -39,7 +37,6 @@ router.get(
   "/list",
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
-    const userService = new UserService();
     const userList = await userService.userList();
 
     if (!userList.success) {
