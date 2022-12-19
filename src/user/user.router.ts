@@ -1,5 +1,5 @@
 import * as express from "express";
-import { tokeMiddleware } from "../middleware/user.middleware";
+import { authMiddleware } from "../middleware/user.middleware";
 import { tokenUtils } from "../utils/token.util";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
@@ -37,7 +37,7 @@ router.post("/login", async (req: express.Request, res: express.Response) => {
 
 router.get(
   "/list",
-  tokeMiddleware,
+  authMiddleware,
   async (req: express.Request, res: express.Response) => {
     const userService = new UserService();
     const userList = await userService.userList();
