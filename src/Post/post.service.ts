@@ -39,4 +39,16 @@ export class PostService {
     });
     return { success: true, message: "게시글 목록", data: postList };
   }
+
+  async detailPost(
+    postId: number
+  ): Promise<{ success: boolean; message: string; data?: PostData }> {
+    const post = await getConnection()
+      .getRepository(Post)
+      .findOne({ id: postId });
+    if (!post) {
+      return { success: false, message: "게시글이 존재하지 않습니다" };
+    }
+    return { success: true, message: "게시글 조회", data: post };
+  }
 }

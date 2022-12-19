@@ -27,4 +27,8 @@ router.get("/list", async (req: express.Request, res: express.Response) => {
   return res.send(postList);
 });
 
+router.get("/:id", async (req: express.Request, res: express.Response) => {
+  return res.send();
+});
+
 export default router;
