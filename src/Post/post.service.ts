@@ -16,7 +16,7 @@ export class PostService {
     const post = new Post();
     post.title = postData.title;
     post.content = postData.content;
-    post.wirter = postData.wirter;
+    post.writer = postData.wirter;
 
     await getConnection().manager.save(post);
 
