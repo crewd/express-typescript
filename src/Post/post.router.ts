@@ -28,7 +28,17 @@ router.get("/list", async (req: express.Request, res: express.Response) => {
 });
 
 router.get("/:id", async (req: express.Request, res: express.Response) => {
-  return res.send();
+  const postId = Number(req.params.id);
+  if (!postId) {
+    return res
+      .status(400)
+      .send({ success: false, message: "게시글이 존재하지 않습니다" });
+  }
+  const postDetail = await postService.detailPost(postId);
+  if (!postDetail.success) {
+    return res.status(400).send(postDetail);
+  }
+  return res.send(postDetail);
 });
 
 export default router;
