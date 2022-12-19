@@ -3,3 +3,10 @@ export type PostData = {
   title: string;
   content: string;
 };
+
+export type PostList = {
+  title: string;
+  writer: string;
+  createdTime: Date;
+  updatedTime: Date;
+};

@@ -22,4 +22,8 @@ export class PostService {
 
     return { success: true, message: "게시글 추가 완료" };
   }
+
+  async list(): Promise<{ success: boolean; message: string; data?: [] }> {
+    return { success: true, message: "게시글 목록" };
+  }
 }

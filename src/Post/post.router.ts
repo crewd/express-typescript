@@ -18,4 +18,8 @@ router.post(
   }
 );
 
+router.get("/list", async (req: express.Request, res: express.Response) => {
+  // const postList =
+});
+
 export default router;
