@@ -1,5 +1,5 @@
 export type PostData = {
-  wirter: string;
+  writer: string;
   title: string;
   content: string;
 };
