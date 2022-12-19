@@ -12,7 +12,7 @@ export class Post {
   id: number;
 
   @Column()
-  wirter: string;
+  writer: string;
 
   @Column()
   title: string;

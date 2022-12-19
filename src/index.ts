@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { createConnection } from "typeorm";
 import * as express from "express";
 import userRouter from "./user/user.router";
+import postRouter from "./Post/post.router";
 import { tokenUtils } from "./utils/token.util";
 
 const app = express();
@@ -16,6 +17,7 @@ createConnection()
 
     // user router
     app.use("/user", userRouter);
+    app.use("/board", postRouter);
 
     app.listen(port, () => {
       console.log(`app listening on port ${port}`);
