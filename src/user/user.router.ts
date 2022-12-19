@@ -1,4 +1,6 @@
 import * as express from "express";
+import { tokeMiddleware } from "../middleware/user.middleware";
+import { tokenUtils } from "../utils/token.util";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { LoginUser } from "./user.types";
@@ -33,15 +35,19 @@ router.post("/login", async (req: express.Request, res: express.Response) => {
   return res.send(logInResult);
 });
 
-router.get("/list", async (req: express.Request, res: express.Response) => {
-  const userService = new UserService();
-  const userList = await userService.userList();
+router.get(
+  "/list",
+  tokeMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const userService = new UserService();
+    const userList = await userService.userList();
 
-  if (!userList.success) {
-    return res.status(400).send(userList);
+    if (!userList.success) {
+      return res.status(400).send(userList);
+    }
+
+    return res.send(userList);
   }
-
-  return res.send(userList);
-});
+);
 
 export default router;

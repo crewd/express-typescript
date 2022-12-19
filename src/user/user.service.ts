@@ -3,7 +3,7 @@ import { getConnection } from "typeorm";
 import { User } from "./user.entity";
 import * as bcrypt from "bcrypt";
 import { LoginUser, SignUpData, Users } from "./user.types";
-import { tokenUtils } from "../middleware/token.utils";
+import { tokenUtils } from "../utils/token.util";
 
 const saltRounds = process.env.SALT_ROUNDS;
 
