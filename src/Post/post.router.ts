@@ -10,7 +10,7 @@ router.post(
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
     const postData = req.body;
-    const writeResult = await postService.write(postData);
+    const writeResult = await postService.addPost(postData);
     if (!writeResult.success) {
       return res.status(400).send(writeResult);
     }
@@ -19,7 +19,12 @@ router.post(
 );
 
 router.get("/list", async (req: express.Request, res: express.Response) => {
-  // const postList =
+  const postList = await postService.getList();
+
+  if (!postList.success) {
+    return res.status(400).send(postList);
+  }
+  return res.send(postList);
 });
 
 export default router;

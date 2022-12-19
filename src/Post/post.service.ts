@@ -1,9 +1,9 @@
 import { getConnection } from "typeorm";
 import { Post } from "./post.entity";
-import { PostData } from "./post.types";
+import { PostData, PostList } from "./post.types";
 
 export class PostService {
-  async write(
+  async addPost(
     postData: PostData
   ): Promise<{ success: boolean; message: string }> {
     if (!postData.title) {
@@ -23,7 +23,20 @@ export class PostService {
     return { success: true, message: "게시글 추가 완료" };
   }
 
-  async list(): Promise<{ success: boolean; message: string; data?: [] }> {
-    return { success: true, message: "게시글 목록" };
+  async getList(): Promise<{
+    success: boolean;
+    message: string;
+    data?: PostList[];
+  }> {
+    const posts = await getConnection().getRepository(Post).find();
+    const postList: PostList[] = posts.map((post) => {
+      return {
+        title: post.title,
+        writer: post.writer,
+        createdTime: post.createdAt,
+        updatedTime: post.updatedAt,
+      };
+    });
+    return { success: true, message: "게시글 목록", data: postList };
   }
 }
