@@ -1,5 +1,5 @@
 import * as express from "express";
-import { authMiddleware } from "../middleware/user.middleware";
+import { authMiddleware } from "../middleware/auth.middleware";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { LoginUser } from "./user.types";
