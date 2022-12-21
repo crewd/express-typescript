@@ -51,4 +51,22 @@ export class PostService {
     }
     return { success: true, message: "게시글 조회", data: post };
   }
+
+  async postUpdate(
+    id,
+    updateData
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data?: any;
+  }> {
+    if (!id || !updateData) {
+      return { success: false, message: "올바른 데이터를 입력해 주세요" };
+    }
+    await getConnection().getRepository(Post).update({ id: id }, updateData);
+
+    const post = await getConnection().getRepository(Post).findOne({ id: id });
+
+    return { success: true, message: "게시글 수정 완료", data: post };
+  }
 }
