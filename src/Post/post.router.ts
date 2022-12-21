@@ -66,4 +66,23 @@ router.patch(
   }
 );
 
+router.delete(
+  "/:id",
+  authMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const postId = Number(req.params.id);
+    const userId = req.body.userId;
+    if (!postId) {
+      return res
+        .status(400)
+        .send({ success: false, message: "올바른 정보를 입력해 주세요" });
+    }
+    const deletePost = await postService.deletePost(postId, userId);
+    if (!deletePost.success) {
+      return res.status(400).send(deletePost);
+    }
+    return res.send(deletePost);
+  }
+);
+
 export default router;
