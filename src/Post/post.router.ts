@@ -35,7 +35,7 @@ router.get("/:id", async (req: express.Request, res: express.Response) => {
       .status(400)
       .send({ success: false, message: "게시글이 존재하지 않습니다" });
   }
-  const postDetail = await postService.detailPost(postId);
+  const postDetail = await postService.getPost(postId);
   if (!postDetail.success) {
     return res.status(400).send(postDetail);
   }
@@ -54,7 +54,7 @@ router.patch(
         .status(400)
         .send({ success: false, message: "올바른 정보를 입력해 주세요" });
     }
-    const updatedData = await postService.postUpdate(
+    const updatedData = await postService.updatePost(
       postId,
       updateData,
       userId

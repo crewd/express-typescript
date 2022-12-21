@@ -42,7 +42,7 @@ export class PostService {
     return { success: true, message: "게시글 목록", data: postList };
   }
 
-  async detailPost(
+  async getPost(
     postId: number
   ): Promise<{ success: boolean; message: string; data?: PostData }> {
     const post = await getConnection()
@@ -54,16 +54,16 @@ export class PostService {
     return { success: true, message: "게시글 조회", data: post };
   }
 
-  async postUpdate(
+  async updatePost(
     postId: number,
-    updateData: any,
+    updatedData: any,
     userId?: number
   ): Promise<{
     success: boolean;
     message: string;
     data?: any;
   }> {
-    if (!postId || !updateData) {
+    if (!postId || !updatedData) {
       return { success: false, message: "올바른 데이터를 입력해 주세요" };
     }
 
@@ -79,8 +79,8 @@ export class PostService {
       return { success: false, message: "권한이 없습니다" };
     }
 
-    post.title = updateData.title;
-    post.content = updateData.content;
+    post.title = updatedData.title;
+    post.content = updatedData.content;
 
     await getConnection().getRepository(Post).save(post);
 
