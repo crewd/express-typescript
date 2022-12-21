@@ -4,12 +4,18 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+import { User } from "../user/user.entity";
 
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  userId: number;
 
   @Column()
   writer: string;
@@ -25,4 +31,8 @@ export class Post {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn({ name: "userId", referencedColumnName: "id" })
+  user: User;
 }

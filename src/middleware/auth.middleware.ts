@@ -6,5 +6,6 @@ export const authMiddleware = (req, res, next) => {
   if (!verifyToken.success) {
     return res.status(401).send(verifyToken);
   }
+  req.body.userId = verifyToken.payload?.id;
   return next();
 };

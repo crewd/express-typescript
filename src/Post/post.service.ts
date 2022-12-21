@@ -4,6 +4,7 @@ import { PostData, PostList } from "./post.types";
 
 export class PostService {
   async addPost(
+    userId: number,
     postData: PostData
   ): Promise<{ success: boolean; message: string }> {
     if (!postData.title) {
@@ -17,6 +18,7 @@ export class PostService {
     post.title = postData.title;
     post.content = postData.content;
     post.writer = postData.writer;
+    post.userId = userId;
 
     await getConnection().manager.save(post);
 
@@ -53,19 +55,34 @@ export class PostService {
   }
 
   async postUpdate(
-    id,
-    updateData
+    postId: number,
+    updateData: any,
+    userId?: number
   ): Promise<{
     success: boolean;
     message: string;
     data?: any;
   }> {
-    if (!id || !updateData) {
+    if (!postId || !updateData) {
       return { success: false, message: "올바른 데이터를 입력해 주세요" };
     }
-    await getConnection().getRepository(Post).update({ id: id }, updateData);
 
-    const post = await getConnection().getRepository(Post).findOne({ id: id });
+    const post = await getConnection()
+      .getRepository(Post)
+      .findOne({ id: postId });
+
+    if (!post) {
+      return { success: false, message: "올바른 데이터를 입력해 주세요" };
+    }
+
+    if (post.userId !== userId) {
+      return { success: false, message: "권한이 없습니다" };
+    }
+
+    post.title = updateData.title;
+    post.content = updateData.content;
+
+    await getConnection().getRepository(Post).save(post);
 
     return { success: true, message: "게시글 수정 완료", data: post };
   }

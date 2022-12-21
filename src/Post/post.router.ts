@@ -10,7 +10,8 @@ router.post(
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
     const postData = req.body;
-    const writeResult = await postService.addPost(postData);
+    const userId = req.body.userId;
+    const writeResult = await postService.addPost(userId, postData);
     if (!writeResult.success) {
       return res.status(400).send(writeResult);
     }
@@ -41,19 +42,28 @@ router.get("/:id", async (req: express.Request, res: express.Response) => {
   return res.send(postDetail);
 });
 
-router.patch("/:id", async (req: express.Request, res: express.Response) => {
-  const postId = Number(req.params.id);
-  const updateData = req.body;
-  if (!postId || !updateData) {
-    return res
-      .status(400)
-      .send({ success: false, message: "올바른 정보를 입력해 주세요" });
+router.patch(
+  "/:id",
+  authMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const postId = Number(req.params.id);
+    const updateData = req.body;
+    const userId = req.body.userId;
+    if (!postId || !updateData) {
+      return res
+        .status(400)
+        .send({ success: false, message: "올바른 정보를 입력해 주세요" });
+    }
+    const updatedData = await postService.postUpdate(
+      postId,
+      updateData,
+      userId
+    );
+    if (!updatedData.success) {
+      return res.status(400).send(updatedData);
+    }
+    return res.send(updatedData);
   }
-  const updatedData = await postService.postUpdate(postId, updateData);
-  if (!updatedData.success) {
-    return res.status(400).send(updatedData);
-  }
-  return res.send(updatedData);
-});
+);
 
 export default router;
