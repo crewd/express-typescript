@@ -15,6 +15,10 @@ export class PostService {
       return { success: false, message: "내용을 입력해 주세요" };
     }
 
+    if (!postData.writer) {
+      return { success: false, message: "권한이 없습니다" };
+    }
+
     const post = new Post();
     post.title = postData.title;
     post.content = postData.content;
