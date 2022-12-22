@@ -123,11 +123,13 @@ export class UserService {
       return { success: false, message: "유효하지 않은 이메일입니다." };
     }
 
+    const randomNumber = Math.floor(Math.random() * 8999) + 1000;
+
     const messageData = {
       from: "changcheon.ryu@gmail.com",
       to: email,
       subject: "회원가입 인증 메일",
-      text: "인증 코드",
+      text: `인증코드 ${randomNumber}`,
     };
 
     return client.messages
