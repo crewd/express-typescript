@@ -1,5 +1,6 @@
 import * as express from "express";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { sendEmail } from "../utils/email.util";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { LoginUser } from "./user.types";
@@ -46,5 +47,14 @@ router.get(
     return res.send(userList);
   }
 );
+
+router.post("/email", async (req: express.Request, res: express.Response) => {
+  const email = req.body.email;
+  const sendEmailForm = await sendEmail(email);
+  if (!sendEmailForm.success) {
+    return res.status(401).send(sendEmailForm);
+  }
+  return res.send(sendEmailForm);
+});
 
 export default router;
