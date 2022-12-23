@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from "typeorm";
 
 @Entity()
@@ -30,3 +29,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
+// 인증용 테이블
+// 인증번호, 인증여부, email, 만료시간

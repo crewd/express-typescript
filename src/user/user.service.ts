@@ -4,8 +4,6 @@ import { User } from "./user.entity";
 import * as bcrypt from "bcrypt";
 import { LoginUser, SignUpData, Users } from "./user.types";
 import { tokenUtils } from "../utils/token.util";
-import Mailgun from "mailgun.js";
-import * as formData from "form-data";
 
 const saltRounds = process.env.SALT_ROUNDS;
 
@@ -101,44 +99,5 @@ export class UserService {
       };
     });
     return { success: true, message: "유저 리스트", data: userInfo };
-  }
-
-  async sendEmail(email: string): Promise<{
-    success: boolean;
-    message: string;
-  }> {
-    const apiKey = process.env.MAILGUN_API_KEY;
-    const domain = process.env.MAILGUN_API_URL;
-
-    const mailgun = new Mailgun(formData);
-    const client = mailgun.client({
-      username: "changcheon.ryu@gmail.com",
-      key: apiKey,
-    });
-
-    const pattern =
-      /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
-
-    if (!pattern.test(email)) {
-      return { success: false, message: "유효하지 않은 이메일입니다." };
-    }
-
-    const randomNumber = Math.floor(Math.random() * 8999) + 1000;
-
-    const messageData = {
-      from: "changcheon.ryu@gmail.com",
-      to: email,
-      subject: "회원가입 인증 메일",
-      text: `인증코드 ${randomNumber}`,
-    };
-
-    return client.messages
-      .create(domain, messageData)
-      .then(() => {
-        return { success: true, message: "이메일 전송 성공" };
-      })
-      .catch(() => {
-        return { success: false, message: "이메일 전송 실패" };
-      });
   }
 }

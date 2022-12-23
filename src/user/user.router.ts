@@ -47,13 +47,4 @@ router.get(
   }
 );
 
-router.post("/email", async (req: express.Request, res: express.Response) => {
-  const email = req.body.email;
-  const sendEmailForm = await userService.sendEmail(email);
-  if (!sendEmailForm.success) {
-    return res.status(401).send(sendEmailForm);
-  }
-  return res.send(sendEmailForm);
-});
-
 export default router;
