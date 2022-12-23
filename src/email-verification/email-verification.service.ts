@@ -2,6 +2,7 @@ import Mailgun from "mailgun.js";
 import * as formData from "form-data";
 import { EmailVerification } from "./email-verification.entity";
 import { getConnection } from "typeorm";
+import { User } from "../user/user.entity";
 
 export class EmailVerificationService {
   async sendEmail(email: string): Promise<{
@@ -22,6 +23,20 @@ export class EmailVerificationService {
 
     if (!pattern.test(email)) {
       return { success: false, message: "유효하지 않은 이메일입니다." };
+    }
+
+    const deleteData = await getConnection()
+      .getRepository(EmailVerification)
+      .findOne({ email: email });
+
+    if (deleteData) {
+      await getConnection().getRepository(EmailVerification).delete(deleteData);
+    }
+
+    const user = getConnection().getRepository(User).findOne({ email: email });
+
+    if (user) {
+      return { success: false, message: "가입된 이메일입니다" };
     }
 
     const randomNumber = Math.floor(Math.random() * 8999) + 1000;

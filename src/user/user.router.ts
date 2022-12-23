@@ -14,7 +14,7 @@ router.post("/signup", async (req: express.Request, res: express.Response) => {
   const signUpResult = await userService.signUp(signUpData);
 
   if (!signUpResult.success) {
-    return res.status(400).send(signUpResult);
+    return res.status(401).send(signUpResult);
   }
 
   return res.send(signUpResult);

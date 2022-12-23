@@ -4,6 +4,7 @@ import { User } from "./user.entity";
 import * as bcrypt from "bcrypt";
 import { LoginUser, SignUpData, Users } from "./user.types";
 import { tokenUtils } from "../utils/token.util";
+import { EmailVerification } from "../email-verification/email-verification.entity";
 
 const saltRounds = process.env.SALT_ROUNDS;
 
@@ -34,6 +35,18 @@ export class UserService {
 
     if (checkEmail) {
       return { success: false, message: "이메일 중복" };
+    }
+
+    const emailVerification = await getConnection()
+      .getRepository(EmailVerification)
+      .findOne({ email: signUpData.email });
+
+    if (!emailVerification) {
+      return { success: false, message: "인증된 이메일이 아닙니다" };
+    }
+
+    if (!emailVerification.certification) {
+      return { success: false, message: "이메일 인증이 필요합니다" };
     }
 
     const hashPassword = await bcrypt.hash(
