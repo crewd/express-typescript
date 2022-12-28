@@ -18,7 +18,7 @@ createConnection()
     // user router
     app.use("/user", userRouter);
     app.use("/post", postRouter);
-    app.use("/verification", emailVerificationRouter);
+    app.use("/email-verification", emailVerificationRouter);
 
     app.listen(port, () => {
       console.log(`app listening on port ${port}`);

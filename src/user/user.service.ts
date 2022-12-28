@@ -45,7 +45,7 @@ export class UserService {
       return { success: false, message: "인증된 이메일이 아닙니다" };
     }
 
-    if (!emailVerification.certification) {
+    if (!emailVerification.isVerified) {
       return { success: false, message: "이메일 인증이 필요합니다" };
     }
 
@@ -70,32 +70,32 @@ export class UserService {
     message: string;
     data?: { token: string; email: string; name: string };
   }> {
-    const checkUser = await getConnection()
+    const checkedUser = await getConnection()
       .getRepository(User)
       .findOne({ email: loginData.email });
 
-    if (!checkUser) {
+    if (!checkedUser) {
       return { success: false, message: "계정 정보를 확인해 주세요" };
     }
 
     const checkPassword = await bcrypt.compare(
       loginData.password,
-      checkUser.password
+      checkedUser.password
     );
 
     if (!checkPassword) {
       return { success: false, message: "비밀번호를 확인해 주세요" };
     }
 
-    const signToken = await tokenUtils.sign(checkUser.id);
+    const signedToken = await tokenUtils.sign(checkedUser.id);
 
     return {
       success: true,
       message: "로그인 성공",
       data: {
-        token: signToken,
-        email: checkUser.email,
-        name: checkUser.name,
+        token: signedToken,
+        email: checkedUser.email,
+        name: checkedUser.name,
       },
     };
   }

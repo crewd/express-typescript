@@ -3,14 +3,14 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 @Entity()
 export class EmailVerification {
   @PrimaryColumn()
-  VerificationCode: number;
+  verificationCode: string;
 
   @Column()
-  certification: boolean;
+  isVerified: boolean;
 
   @Column()
   email: string;
 
   @Column()
-  ExpirationTime: Date;
+  expirationTime: Date;
 }
