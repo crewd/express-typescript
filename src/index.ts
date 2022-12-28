@@ -4,6 +4,7 @@ import { createConnection } from "typeorm";
 import * as express from "express";
 import userRouter from "./user/user.router";
 import postRouter from "./post/post.router";
+import commentRouter from "./comment/comment.router";
 import emailVerificationRouter from "./email-verification/email-verification.router";
 
 const app = express();
@@ -18,6 +19,7 @@ createConnection()
     // user router
     app.use("/user", userRouter);
     app.use("/post", postRouter);
+    app.use("/comment", commentRouter);
     app.use("/email-verification", emailVerificationRouter);
 
     app.listen(port, () => {

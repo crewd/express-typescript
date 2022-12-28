@@ -1,19 +1,20 @@
 import {
   Entity,
   Column,
-  PrimaryColumn,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  ManyToMany,
 } from "typeorm";
 import { Post } from "../post/post.entity";
 import { User } from "../user/user.entity";
 
 @Entity()
 export class Comment {
-  @PrimaryColumn()
-  commentId: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   userId: number;
@@ -27,11 +28,14 @@ export class Comment {
   @Column()
   content: string;
 
-  @Column()
-  group: number;
+  @Column({ default: 0 })
+  parentId: number;
+
+  @Column({ default: 0 })
+  depth: number;
 
   @Column()
-  depth: number;
+  group: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -43,7 +47,7 @@ export class Comment {
   @JoinColumn({ name: "postId", referencedColumnName: "id" })
   post: Post;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToMany(() => User, (user) => user.id)
   @JoinColumn({ name: "userId", referencedColumnName: "id" })
   user: User;
 }
