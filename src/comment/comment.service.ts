@@ -32,10 +32,6 @@ export class CommentService {
       .find({ parentId: 0 });
     comment.group = groups.length + 1;
 
-    const getCommentResult = await getConnection()
-      .getRepository(Comment)
-      .findOne({ id: commentData.parentId });
-
     const getParentComment = await getConnection()
       .getRepository(Comment)
       .findOne({ id: commentData.parentId });
@@ -44,20 +40,23 @@ export class CommentService {
       .getRepository(Comment)
       .find({ parentId: commentData.parentId });
 
-    if (!getCommentResult && commentData.parentId) {
+    if (!getParentComment && commentData.parentId) {
       return { success: false, message: "없는 댓글입니다" };
     }
 
     if (commentData.parentId) {
       comment.parentId = commentData.parentId;
-      comment.depth = getCommentResult.depth + 1;
-      comment.group = getCommentResult.group;
+      comment.depth = getParentComment.depth + 1;
+      comment.group = getParentComment.group;
 
       const getGroupsResult = await getConnection()
         .getRepository(Comment)
         .find({ group: comment.group });
 
-      comment.order = getParentComment.order + getChildComments.length + 1;
+      comment.order =
+        getParentComment.order === 0
+          ? getGroupsResult.length
+          : getParentComment.order + getChildComments.length + 1;
 
       await getGroupsResult.map(async (data) => {
         if (comment.order <= data.order && data.parentId !== 0) {
