@@ -36,6 +36,14 @@ export class CommentService {
       .getRepository(Comment)
       .findOne({ id: commentData.parentId });
 
+    const getParentComment = await getConnection()
+      .getRepository(Comment)
+      .findOne({ id: commentData.parentId });
+
+    const getChildComments = await getConnection()
+      .getRepository(Comment)
+      .find({ parentId: commentData.parentId });
+
     if (!getCommentResult && commentData.parentId) {
       return { success: false, message: "없는 댓글입니다" };
     }
@@ -44,9 +52,22 @@ export class CommentService {
       comment.parentId = commentData.parentId;
       comment.depth = getCommentResult.depth + 1;
       comment.group = getCommentResult.group;
+
+      const getGroupsResult = await getConnection()
+        .getRepository(Comment)
+        .find({ group: comment.group });
+
+      comment.order = getParentComment.order + getChildComments.length + 1;
+
+      await getGroupsResult.map(async (data) => {
+        if (comment.order <= data.order && data.parentId !== 0) {
+          data.order += 1;
+          await getConnection().getRepository(Comment).save(data);
+        }
+      });
     }
 
-    await getConnection().manager.save(comment);
+    await getConnection().getRepository(Comment).save(comment);
 
     const comments = await getConnection().getRepository(Comment).find();
 

@@ -37,6 +37,9 @@ export class Comment {
   @Column()
   group: number;
 
+  @Column({ default: 0 })
+  order: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
