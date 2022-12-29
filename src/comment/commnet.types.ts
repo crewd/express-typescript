@@ -5,3 +5,15 @@ export type CommentData = {
   content: string;
   parentId?: number;
 };
+
+export type CommentType = {
+  id: number;
+  parentId: number;
+  userName: string;
+  content: string;
+  depth: number;
+  group: number;
+  order: number;
+  createdTime: Date;
+  updatedTime: Date;
+};

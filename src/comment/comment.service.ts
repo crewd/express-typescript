@@ -1,14 +1,14 @@
 import { getConnection } from "typeorm";
 import { Post } from "../post/post.entity";
 import { Comment } from "./comment.entity";
-import { CommentData } from "./commnet.types";
+import { CommentData, CommentType } from "./commnet.types";
 
 export class CommentService {
   async addComment(
     postId: number,
     userId: number,
     commentData: CommentData
-  ): Promise<{ success: boolean; message: string; data? }> {
+  ): Promise<{ success: boolean; message: string; data?: CommentType[] }> {
     const getPostResult = await getConnection()
       .getRepository(Post)
       .findOne({ id: postId });
@@ -69,7 +69,23 @@ export class CommentService {
 
     await getConnection().getRepository(Comment).save(comment);
 
-    const comments = await getConnection().getRepository(Comment).find();
+    const getCommentsResult = await getConnection()
+      .getRepository(Comment)
+      .find({ postId: postId });
+
+    const comments = getCommentsResult.map((data) => {
+      return {
+        id: data.id,
+        parentId: data.parentId,
+        userName: data.userName,
+        content: data.content,
+        depth: data.depth,
+        group: data.group,
+        order: data.order,
+        createdTime: data.createdAt,
+        updatedTime: data.updatedAt,
+      };
+    });
 
     const sortCommentsResult = comments.sort(
       (a, b) => a.group - b.group || a.order - b.order
@@ -77,7 +93,43 @@ export class CommentService {
 
     return {
       success: true,
-      message: "댓글 작성",
+      message: "댓글 작성 성공",
+      data: sortCommentsResult,
+    };
+  }
+
+  async getComments(
+    postId: number
+  ): Promise<{ success: boolean; message: string; data?: CommentType[] }> {
+    const getCommentsResult = await getConnection()
+      .getRepository(Comment)
+      .find({ postId: postId });
+
+    if (!getCommentsResult) {
+      return { success: false, message: "댓글이 존재하지 않습니다" };
+    }
+
+    const comments = getCommentsResult.map((data) => {
+      return {
+        id: data.id,
+        parentId: data.parentId,
+        userName: data.userName,
+        content: data.content,
+        depth: data.depth,
+        group: data.group,
+        order: data.order,
+        createdTime: data.createdAt,
+        updatedTime: data.updatedAt,
+      };
+    });
+
+    const sortCommentsResult = comments.sort(
+      (a, b) => a.group - b.group || a.order - b.order
+    );
+
+    return {
+      success: true,
+      message: "댓글 리스트",
       data: sortCommentsResult,
     };
   }
