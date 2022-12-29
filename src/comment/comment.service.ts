@@ -138,10 +138,6 @@ export class CommentService {
     userId: number,
     updateData: { content: string }
   ): Promise<{ success: boolean; message: string }> {
-    if (!commentId || !userId) {
-      return { success: false, message: "정보를 확인해 주세요" };
-    }
-
     const comment = await getConnection()
       .getRepository(Comment)
       .findOne({ id: commentId });
@@ -158,5 +154,25 @@ export class CommentService {
     await getConnection().getRepository(Comment).save(comment);
 
     return { success: true, message: "댓글 수정 완료" };
+  }
+
+  async deleteComment(
+    commentId: number,
+    userId: number
+  ): Promise<{ success: boolean; message: string }> {
+    const comment = await getConnection()
+      .getRepository(Comment)
+      .findOne({ id: commentId });
+
+    if (!comment) {
+      return { success: false, message: "댓글을 찾을 수 없습니다" };
+    }
+
+    if (userId !== comment.userId) {
+      return { success: false, message: "권한이 없습니다" };
+    }
+
+    await getConnection().getRepository(Comment).delete({ id: commentId });
+    return { success: true, message: "댓글 삭제 완료" };
   }
 }

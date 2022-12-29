@@ -90,4 +90,31 @@ router.patch(
   }
 );
 
+router.delete(
+  "/:id",
+  authMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const commentId = Number(req.params.id);
+    const userId = Number(req.body.userId);
+
+    if (!commentId) {
+      return res
+        .status(400)
+        .send({ success: false, message: "댓글 번호를 확인해 주세요" });
+    }
+    if (!userId) {
+      return res
+        .status(400)
+        .send({ success: false, message: "잘못된 유저입니다" });
+    }
+
+    const deleteComment = await commentService.deleteComment(commentId, userId);
+
+    if (!deleteComment.success) {
+      return res.status(400).send(deleteComment);
+    }
+    return res.send(deleteComment);
+  }
+);
+
 export default router;
