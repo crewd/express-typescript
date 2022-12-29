@@ -71,6 +71,14 @@ export class CommentService {
 
     const comments = await getConnection().getRepository(Comment).find();
 
-    return { success: true, message: "댓글 작성" };
+    const sortCommentsResult = comments.sort(
+      (a, b) => a.group - b.group || a.order - b.order
+    );
+
+    return {
+      success: true,
+      message: "댓글 작성",
+      data: sortCommentsResult,
+    };
   }
 }
