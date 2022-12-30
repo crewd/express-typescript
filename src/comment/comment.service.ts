@@ -32,31 +32,31 @@ export class CommentService {
       .find({ parentId: 0 });
     comment.group = groups.length + 1;
 
-    const getParentComment = await getConnection()
+    const parentComment = await getConnection()
       .getRepository(Comment)
       .findOne({ id: commentData.parentId });
 
-    const getChildComments = await getConnection()
+    const childComments = await getConnection()
       .getRepository(Comment)
       .find({ parentId: commentData.parentId });
 
-    if (!getParentComment && commentData.parentId) {
+    if (!parentComment && commentData.parentId) {
       return { success: false, message: "없는 댓글입니다" };
     }
 
     if (commentData.parentId) {
       comment.parentId = commentData.parentId;
-      comment.depth = getParentComment.depth + 1;
-      comment.group = getParentComment.group;
+      comment.depth = parentComment.depth + 1;
+      comment.group = parentComment.group;
 
       const getGroupsResult = await getConnection()
         .getRepository(Comment)
         .find({ group: comment.group });
 
       comment.order =
-        getParentComment.order === 0
+        parentComment.order === 0
           ? getGroupsResult.length
-          : getParentComment.order + getChildComments.length + 1;
+          : parentComment.order + childComments.length + 1;
 
       await getGroupsResult.map(async (data) => {
         if (comment.order <= data.order && data.parentId !== 0) {
