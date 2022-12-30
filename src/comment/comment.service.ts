@@ -27,10 +27,10 @@ export class CommentService {
     comment.userId = userId;
     comment.userName = commentData.userName;
 
-    const groups = await getConnection()
+    const group = await getConnection()
       .getRepository(Comment)
       .find({ parentId: 0 });
-    comment.group = groups.length + 1;
+    comment.group = group.length + 1;
 
     const parentComment = await getConnection()
       .getRepository(Comment)
