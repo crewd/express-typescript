@@ -7,6 +7,7 @@ import { tokenUtils } from "../utils/token.util";
 import { EmailVerification } from "../email-verification/email-verification.entity";
 
 const saltRounds = process.env.SALT_ROUNDS;
+const kakaoApiKey = process.env.KAKAO_API_KEY;
 
 export class UserService {
   async signUp(signUpData: SignUpData): Promise<{
@@ -113,4 +114,6 @@ export class UserService {
     });
     return { success: true, message: "유저 리스트", data: userInfo };
   }
+
+  async kakaoLogin() {}
 }

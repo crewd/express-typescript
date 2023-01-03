@@ -15,8 +15,11 @@ export class User {
   email: string;
 
   // 카카오 null / 카카오 uid
-  @Column()
+  @Column({ nullable: true })
   password: string;
+
+  @Column({ nullable: true })
+  kakaoUid: string;
 
   @Column()
   name: string;
