@@ -6,10 +6,10 @@ const router = express.Router();
 const commentService = new CommentService();
 
 router.post(
-  "/:id",
+  "/post/:postId/comment",
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
-    const postId = Number(req.params.id);
+    const postId = Number(req.params.postId);
 
     if (!postId) {
       return res
@@ -36,27 +36,30 @@ router.post(
   }
 );
 
-router.get("/list/:id", async (req: express.Request, res: express.Response) => {
-  const postId = Number(req.params.id);
-  if (!postId) {
-    return res
-      .status(400)
-      .send({ success: false, message: "게시글 번호를 확인해 주세요" });
-  }
-  const addComment = await commentService.getComments(postId);
+router.get(
+  "/post/:postId/comments",
+  async (req: express.Request, res: express.Response) => {
+    const postId = Number(req.params.postId);
+    if (!postId) {
+      return res
+        .status(400)
+        .send({ success: false, message: "게시글 번호를 확인해 주세요" });
+    }
+    const addComment = await commentService.getComments(postId);
 
-  if (!addComment.success) {
-    return res.status(400).send(addComment);
-  }
+    if (!addComment.success) {
+      return res.status(400).send(addComment);
+    }
 
-  return res.send(addComment);
-});
+    return res.send(addComment);
+  }
+);
 
 router.patch(
-  "/:id",
+  "/comments/:commentId",
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
-    const commentId = Number(req.params.id);
+    const commentId = Number(req.params.commentId);
     const userId = Number(req.body.userId);
     const updateData = req.body;
 
@@ -91,10 +94,10 @@ router.patch(
 );
 
 router.delete(
-  "/:id",
+  "/comments/:commentId",
   authMiddleware,
   async (req: express.Request, res: express.Response) => {
-    const commentId = Number(req.params.id);
+    const commentId = Number(req.params.commentId);
     const userId = Number(req.body.userId);
 
     if (!commentId) {

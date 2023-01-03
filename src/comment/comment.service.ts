@@ -9,11 +9,11 @@ export class CommentService {
     userId: number,
     commentData: CommentData
   ): Promise<{ success: boolean; message: string; data?: CommentType[] }> {
-    const getPostResult = await getConnection()
+    const post = await getConnection()
       .getRepository(Post)
       .findOne({ id: postId });
 
-    if (!getPostResult) {
+    if (!post) {
       return { success: false, message: "게시물이 존재하지 않습니다" };
     }
 
@@ -36,10 +36,6 @@ export class CommentService {
       .getRepository(Comment)
       .findOne({ id: commentData.parentId });
 
-    const childComments = await getConnection()
-      .getRepository(Comment)
-      .find({ parentId: commentData.parentId });
-
     if (!parentComment && commentData.parentId) {
       return { success: false, message: "없는 댓글입니다" };
     }
@@ -49,16 +45,20 @@ export class CommentService {
       comment.depth = parentComment.depth + 1;
       comment.group = parentComment.group;
 
-      const getGroupsResult = await getConnection()
+      const groups = await getConnection()
         .getRepository(Comment)
         .find({ group: comment.group });
 
+      const childComments = await getConnection()
+        .getRepository(Comment)
+        .find({ parentId: commentData.parentId });
+
       comment.order =
         parentComment.order === 0
-          ? getGroupsResult.length
+          ? groups.length
           : parentComment.order + childComments.length + 1;
 
-      await getGroupsResult.map(async (data) => {
+      await groups.map(async (data) => {
         if (comment.order <= data.order && data.parentId !== 0) {
           data.order += 1;
           await getConnection().getRepository(Comment).save(data);
@@ -68,11 +68,11 @@ export class CommentService {
 
     await getConnection().getRepository(Comment).save(comment);
 
-    const getCommentsResult = await getConnection()
+    const commentsData = await getConnection()
       .getRepository(Comment)
       .find({ postId: postId });
 
-    const comments = getCommentsResult.map((data) => {
+    const comments = commentsData.map((data) => {
       return {
         id: data.id,
         parentId: data.parentId,
@@ -86,29 +86,29 @@ export class CommentService {
       };
     });
 
-    const sortCommentsResult = comments.sort(
+    const sortedComments = comments.sort(
       (a, b) => a.group - b.group || a.order - b.order
     );
 
     return {
       success: true,
       message: "댓글 작성 성공",
-      data: sortCommentsResult,
+      data: sortedComments,
     };
   }
 
   async getComments(
     postId: number
   ): Promise<{ success: boolean; message: string; data?: CommentType[] }> {
-    const getCommentsResult = await getConnection()
+    const commentsData = await getConnection()
       .getRepository(Comment)
       .find({ postId: postId });
 
-    if (!getCommentsResult) {
+    if (!commentsData) {
       return { success: false, message: "댓글이 존재하지 않습니다" };
     }
 
-    const comments = getCommentsResult.map((data) => {
+    const comments = commentsData.map((data) => {
       return {
         id: data.id,
         parentId: data.parentId,
@@ -122,14 +122,14 @@ export class CommentService {
       };
     });
 
-    const sortCommentsResult = comments.sort(
+    const sortedComments = comments.sort(
       (a, b) => a.group - b.group || a.order - b.order
     );
 
     return {
       success: true,
       message: "댓글 리스트",
-      data: sortCommentsResult,
+      data: sortedComments,
     };
   }
 

@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  ManyToMany,
 } from "typeorm";
 import { Post } from "../post/post.entity";
 import { User } from "../user/user.entity";
@@ -50,7 +49,7 @@ export class Comment {
   @JoinColumn({ name: "postId", referencedColumnName: "id" })
   post: Post;
 
-  @ManyToMany(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: "userId", referencedColumnName: "id" })
   user: User;
 }
