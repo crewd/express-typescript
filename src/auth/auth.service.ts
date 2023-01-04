@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import { getConnection } from "typeorm";
 import { User } from "../user/user.entity";
 import { tokenUtils } from "../utils/token.util";
@@ -7,7 +8,12 @@ export class AuthService {
   async kakaoLogin(kakaoUid: string): Promise<{
     success: boolean;
     message: string;
-    data?: { token?: string; email?: string; name?: string; kakaoUid?: string };
+    data?: {
+      token?: string;
+      email?: string;
+      name?: string;
+      kakaoUid?: string;
+    };
   }> {
     if (!kakaoUid) {
       return { success: false, message: "회원정보가 없습니다" };
@@ -27,7 +33,12 @@ export class AuthService {
     return {
       success: true,
       message: "카카오 로그인 성공",
-      data: { token: signedToken, email: user.email, name: user.name },
+      data: {
+        token: signedToken,
+        email: user.email,
+        name: user.name,
+        kakaoUid: kakaoUid,
+      },
     };
   }
 
@@ -66,5 +77,30 @@ export class AuthService {
 
     await getConnection().manager.save(user);
     return { success: true, message: "가입 완료" };
+  }
+
+  async kakaoLogOut(kakaoUid: string) {
+    if (!kakaoUid) {
+      return { success: false, message: "kakaoUid_false" };
+    }
+    const kakaoAdminKey = process.env.KAKAO_ADMIN_KEY;
+    const logOutData = {
+      target_id_type: "user_id",
+      target_id: kakaoUid,
+    };
+
+    try {
+      await axios.post("https://kapi.kakao.com/v1/user/logout", logOutData, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+          Authorization: `KakaoAK ${kakaoAdminKey}`,
+        },
+      });
+      return { success: true, message: "로그아웃 성공" };
+    } catch (err) {
+      console.log(err);
+      const { message } = err as AxiosError;
+      return { success: false, message: message };
+    }
   }
 }

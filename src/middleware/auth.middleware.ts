@@ -44,7 +44,7 @@ export const kakaoAuthMiddleware = async (
     if (!verifyKakaoToken.success) {
       return res.status(401).send(verifyKakaoToken);
     }
-    req.body.kakaoToken = kakaoToken.id_token;
+    req.body.kakaoToken = kakaoToken.access_token;
     req.body.kakaoUid = verifyKakaoToken.payload?.sub;
 
     return next();

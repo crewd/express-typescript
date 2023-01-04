@@ -1,8 +1,5 @@
 import * as express from "express";
-import {
-  authMiddleware,
-  kakaoAuthMiddleware,
-} from "../middleware/auth.middleware";
+import { kakaoAuthMiddleware } from "../middleware/auth.middleware";
 import { AuthService } from "./auth.service";
 
 const router = express.Router();
@@ -24,7 +21,6 @@ router.get(
   "/kakao",
   kakaoAuthMiddleware,
   async (req: express.Request, res: express.Response) => {
-    const kakaoToken = req.body.kakaoToken;
     const kakaoUid = req.body.kakaoUid;
 
     const kakaoLoginResult = await authService.kakaoLogin(kakaoUid);
@@ -48,6 +44,18 @@ router.post(
     }
 
     return res.send(kakaoSignUpResult);
+  }
+);
+
+router.post(
+  "/kakao/logout",
+  async (req: express.Request, res: express.Response) => {
+    const kakaoAccessToken = req.body.kakaoUid;
+    const kakaoLogOutResult = await authService.kakaoLogOut(kakaoAccessToken);
+    if (!kakaoLogOutResult.success) {
+      return res.status(401).send(kakaoLogOutResult);
+    }
+    return res.send(kakaoLogOutResult);
   }
 );
 
