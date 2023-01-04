@@ -27,7 +27,7 @@ router.get(
     const kakaoToken = req.body.kakaoToken;
     const kakaoUid = req.body.kakaoUid;
 
-    const kakaoLoginResult = await authService.kakaoLogin(kakaoToken, kakaoUid);
+    const kakaoLoginResult = await authService.kakaoLogin(kakaoUid);
 
     if (!kakaoLoginResult.success) {
       return res.status(401).send(kakaoLoginResult);

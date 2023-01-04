@@ -1,19 +1,14 @@
 import { getConnection } from "typeorm";
 import { User } from "../user/user.entity";
+import { tokenUtils } from "../utils/token.util";
 import { KakaoSignUpData } from "./auth.types";
 
 export class AuthService {
-  async kakaoLogin(
-    kakaoToken: string,
-    kakaoUid: string
-  ): Promise<{
+  async kakaoLogin(kakaoUid: string): Promise<{
     success: boolean;
     message: string;
     data?: { token?: string; email?: string; name?: string; kakaoUid?: string };
   }> {
-    if (!kakaoToken) {
-      return { success: false, message: "토큰이 없습니다" };
-    }
     if (!kakaoUid) {
       return { success: false, message: "회원정보가 없습니다" };
     }
@@ -27,10 +22,12 @@ export class AuthService {
         data: { kakaoUid: kakaoUid },
       };
     }
+    const signedToken = await tokenUtils.sign(user.id);
+
     return {
       success: true,
       message: "카카오 로그인 성공",
-      data: { token: kakaoToken, email: user.email, name: user.name },
+      data: { token: signedToken, email: user.email, name: user.name },
     };
   }
 
