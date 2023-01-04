@@ -1,5 +1,8 @@
 import * as express from "express";
-import { authMiddleware } from "../middleware/auth.middleware";
+import {
+  authMiddleware,
+  kakaoAuthMiddleware,
+} from "../middleware/auth.middleware";
 import { AuthService } from "./auth.service";
 
 const router = express.Router();
@@ -17,18 +20,35 @@ router.get(
   }
 );
 
-router.get("/kakao", async (req: express.Request, res: express.Response) => {
-  const code = req.query.code.toString();
-  if (!code) {
-    return res
-      .status(400)
-      .send({ success: false, message: "올바르지 않은 코드입니다." });
+router.get(
+  "/kakao",
+  kakaoAuthMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const kakaoToken = req.body.kakaoToken;
+    const kakaoUid = req.body.kakaoUid;
+
+    const kakaoLoginResult = await authService.kakaoLogin(kakaoToken, kakaoUid);
+
+    if (!kakaoLoginResult.success) {
+      return res.status(401).send(kakaoLoginResult);
+    }
+    return res.send(kakaoLoginResult);
   }
-  const tokenResult = await authService.getToken(code, clientId, redirectUri);
-  if (!tokenResult.sucess) {
-    return res.status(401).send(tokenResult);
+);
+
+router.post(
+  "/kakao/signup",
+  async (req: express.Request, res: express.Response) => {
+    const kakaoSignUpData = req.body;
+
+    const kakaoSignUpResult = await authService.kakaoSignUp(kakaoSignUpData);
+
+    if (!kakaoSignUpResult.success) {
+      return res.status(400).send(kakaoSignUpResult);
+    }
+
+    return res.send(kakaoSignUpResult);
   }
-  return res.send(tokenResult);
-});
+);
 
 export default router;

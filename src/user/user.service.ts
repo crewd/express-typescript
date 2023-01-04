@@ -114,6 +114,4 @@ export class UserService {
     });
     return { success: true, message: "유저 리스트", data: userInfo };
   }
-
-  async kakaoLogin() {}
 }
