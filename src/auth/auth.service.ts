@@ -9,10 +9,9 @@ export class AuthService {
     success: boolean;
     message: string;
     data?: {
-      token?: string;
-      email?: string;
-      name?: string;
-      kakaoUid?: string;
+      token: string;
+      email: string;
+      name: string;
     };
   }> {
     if (!kakaoUid) {
@@ -25,7 +24,6 @@ export class AuthService {
       return {
         success: false,
         message: "가입된 회원이 아닙니다.",
-        data: { kakaoUid: kakaoUid },
       };
     }
     const signedToken = await tokenUtils.sign(user.id);
@@ -37,7 +35,6 @@ export class AuthService {
         token: signedToken,
         email: user.email,
         name: user.name,
-        kakaoUid: kakaoUid,
       },
     };
   }
@@ -69,6 +66,14 @@ export class AuthService {
       return { success: false, message: "이메일 중복" };
     }
 
+    const checkedKakaoUid = await getConnection()
+      .getRepository(User)
+      .findOne({ kakaoUid: kakaoSignUpData.kakaoUid });
+
+    if (checkedKakaoUid) {
+      return { success: false, message: "이미 가입된 카카오 회원입니다." };
+    }
+
     const user = new User();
     user.email = kakaoSignUpData.email;
     user.name = kakaoSignUpData.name;
@@ -77,30 +82,5 @@ export class AuthService {
 
     await getConnection().manager.save(user);
     return { success: true, message: "가입 완료" };
-  }
-
-  async kakaoLogOut(kakaoUid: string) {
-    if (!kakaoUid) {
-      return { success: false, message: "kakaoUid_false" };
-    }
-    const kakaoAdminKey = process.env.KAKAO_ADMIN_KEY;
-    const logOutData = {
-      target_id_type: "user_id",
-      target_id: kakaoUid,
-    };
-
-    try {
-      await axios.post("https://kapi.kakao.com/v1/user/logout", logOutData, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-          Authorization: `KakaoAK ${kakaoAdminKey}`,
-        },
-      });
-      return { success: true, message: "로그아웃 성공" };
-    } catch (err) {
-      console.log(err);
-      const { message } = err as AxiosError;
-      return { success: false, message: message };
-    }
   }
 }

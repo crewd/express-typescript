@@ -1,7 +1,14 @@
 import * as express from "express";
 import axios, { AxiosError } from "axios";
+import * as jwt from "jsonwebtoken";
+import * as jwks from "jwks-rsa";
 import { tokenUtils } from "../utils/token.util";
-import { KakaoToken } from "../auth/auth.types";
+
+const jwksClient = new jwks.JwksClient({
+  jwksUri: "https://kauth.kakao.com/.well-known/jwks.json",
+  requestHeaders: {},
+  timeout: 30000,
+});
 
 export const authMiddleware = (
   req: express.Request,
@@ -9,11 +16,12 @@ export const authMiddleware = (
   next: express.NextFunction
 ) => {
   const token = req.headers["authorization"].split("Bearer ")[1];
+
   const verifyToken = tokenUtils.verify(token);
   if (!verifyToken.success) {
     return res.status(401).send(verifyToken);
   }
-  req.body.userId = verifyToken.payload?.id;
+  req.body.userId = verifyToken.payload.id;
   return next();
 };
 
@@ -22,30 +30,40 @@ export const kakaoAuthMiddleware = async (
   res: express.Response,
   next: express.NextFunction
 ) => {
-  const code = req.query.code;
-  const requestUrl = "https://kauth.kakao.com/oauth/token";
-  const parameter = {
-    grant_type: "authorization_code",
-    client_id: process.env.KAKAO_API_KEY,
-    redirect_uri: "http://localhost:3000/auth/kakao",
-    code: code,
-  };
+  const kakaoIdToken = req.body.kakaoIdToken;
 
   try {
-    const kakaoData = await axios.post(requestUrl, parameter, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-      },
-    });
+    const decodedPayload: any = jwt.decode(kakaoIdToken);
+    const unixTimeStamp = new Date().getTime() / 1000;
 
-    const kakaoToken: KakaoToken = kakaoData.data;
-    const verifyKakaoToken = tokenUtils.kakaoVerify(kakaoToken.id_token);
-
-    if (!verifyKakaoToken.success) {
-      return res.status(401).send(verifyKakaoToken);
+    if (decodedPayload.iss !== "https://kauth.kakao.com") {
+      return res.status(401).send({ success: false, message: "iss 불일치" });
     }
-    req.body.kakaoToken = kakaoToken.access_token;
-    req.body.kakaoUid = verifyKakaoToken.payload?.sub;
+
+    if (decodedPayload.aud !== process.env.KAKAO_API_KEY) {
+      return res.status(401).send({ success: false, message: "aud 불일치" });
+    }
+
+    if (decodedPayload.exp < unixTimeStamp) {
+      return res.status(401).send({ success: false, message: "토큰 만료" });
+    }
+
+    const tokenHeader = kakaoIdToken.split(".")[0];
+
+    const header = Buffer.from(tokenHeader, "base64");
+    const decodedHeader = JSON.parse(header.toString());
+
+    const kid = decodedHeader.kid;
+    const key = await jwksClient.getSigningKey(kid);
+    const signKey = key.getPublicKey();
+
+    const verifyToken = tokenUtils.verify(kakaoIdToken, signKey);
+
+    if (!verifyToken.success) {
+      return res.status(401).send(verifyToken);
+    }
+
+    req.body.kakaoUid = verifyToken.payload?.sub;
 
     return next();
   } catch (err) {

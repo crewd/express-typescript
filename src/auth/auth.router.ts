@@ -5,20 +5,8 @@ import { AuthService } from "./auth.service";
 const router = express.Router();
 const authService = new AuthService();
 
-const clientId = process.env.KAKAO_API_KEY;
-const redirectUri = "http://localhost:3000/auth/kakao";
-
-router.get(
+router.post(
   "/kakao/login",
-  async (req: express.Request, res: express.Response) => {
-    const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
-
-    return res.redirect(kakaoLoginUrl);
-  }
-);
-
-router.get(
-  "/kakao",
   kakaoAuthMiddleware,
   async (req: express.Request, res: express.Response) => {
     const kakaoUid = req.body.kakaoUid;
@@ -34,28 +22,17 @@ router.get(
 
 router.post(
   "/kakao/signup",
+  kakaoAuthMiddleware,
   async (req: express.Request, res: express.Response) => {
     const kakaoSignUpData = req.body;
 
     const kakaoSignUpResult = await authService.kakaoSignUp(kakaoSignUpData);
 
     if (!kakaoSignUpResult.success) {
-      return res.status(400).send(kakaoSignUpResult);
+      return res.status(401).send(kakaoSignUpResult);
     }
 
     return res.send(kakaoSignUpResult);
-  }
-);
-
-router.post(
-  "/kakao/logout",
-  async (req: express.Request, res: express.Response) => {
-    const kakaoAccessToken = req.body.kakaoUid;
-    const kakaoLogOutResult = await authService.kakaoLogOut(kakaoAccessToken);
-    if (!kakaoLogOutResult.success) {
-      return res.status(401).send(kakaoLogOutResult);
-    }
-    return res.send(kakaoLogOutResult);
   }
 );
 
