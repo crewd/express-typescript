@@ -11,17 +11,18 @@ export const tokenUtils = {
 
   verify: (
     token: string,
-    publicKey?: string
+    publicKey?: string,
+    options?: jwt.VerifyOptions
   ): { success: boolean; message: string; payload?: any } => {
     if (!token) {
       return { success: false, message: "유효하지 않은 토큰입니다." };
     }
     try {
       if (publicKey) {
-        const payload = jwt.verify(token, publicKey);
+        const payload = jwt.verify(token, publicKey, options);
         return { success: true, message: "인증 성공", payload: payload };
       }
-      const payload = jwt.verify(token, secretKey);
+      const payload = jwt.verify(token, secretKey, options);
       return { success: true, message: "인증 성공", payload: payload };
     } catch (err) {
       return { success: false, message: err };
